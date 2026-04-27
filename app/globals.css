@@ -41,7 +41,7 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'IBM Plex Sans Thai', 'Inter', sans-serif;
   background-color: var(--background);
   color: var(--on-surface);
   -webkit-font-smoothing: antialiased;
@@ -58,20 +58,20 @@ a {
 .text-display-hero {
   font-size: 48px;
   font-weight: 800;
-  line-height: 1.1;
+  line-height: 1.3;
   letter-spacing: -0.02em;
 }
 
 .text-headline-lg {
   font-size: 32px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.4;
 }
 
 .text-headline-md {
   font-size: 24px;
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 1.4;
 }
 
 .text-body-lg {
