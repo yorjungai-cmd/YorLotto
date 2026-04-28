@@ -122,29 +122,29 @@ export default function Home() {
       <div className="container dashboard">
         {/* Control Panel */}
         <div className="control-panel card">
-          <h2 className="text-headline-md">ตั้งค่าการสุ่ม</h2>
+          <h2 className="text-headline-md">ตั้งค่าระบบคำนวณ</h2>
 
           <div className="form-group">
-            <label className="text-label-bold">โหมดการสุ่ม</label>
+            <label className="text-label-bold">โหมดคำนวณ</label>
             <div className="mode-selector">
               <button
                 className={`mode-btn ${mode === "pure" ? "active" : ""}`}
                 onClick={() => setMode("pure")}
               >
-                สุ่มล้วน
+                Normal
               </button>
               <button
                 className={`mode-btn ${mode === "birthday" ? "active" : ""}`}
                 onClick={() => setMode("birthday")}
               >
-                ผสมวันเกิด
+                Advance
               </button>
               <button
                 className={`mode-btn mode-btn-smart ${mode === "smart" ? "active" : ""}`}
                 onClick={() => setMode("smart")}
                 title={!stats ? "รอโหลดสถิติ GLO..." : ""}
               >
-                ✦ ชาญฉลาด
+                ✦ Quantum
               </button>
             </div>
             {mode === "smart" && !stats && !statsLoading && (
