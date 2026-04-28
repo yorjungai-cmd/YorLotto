@@ -26,7 +26,7 @@ export default function RootLayout({
       <body>
         <header className="top-app-bar">
           <div className="container header-content">
-            <div className="logo">YOR LOTTO</div>
+            <div className="logo">Yor Lotto Prediction System</div>
             <div className="header-actions">
               <button className="icon-btn">
                 <span className="material-symbols-outlined">notifications</span>
