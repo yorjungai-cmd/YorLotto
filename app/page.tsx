@@ -134,12 +134,6 @@ export default function Home() {
                 Normal
               </button>
               <button
-                className={`mode-btn ${mode === "birthday" ? "active" : ""}`}
-                onClick={() => setMode("birthday")}
-              >
-                Advance
-              </button>
-              <button
                 className={`mode-btn mode-btn-smart ${mode === "smart" ? "active" : ""}`}
                 onClick={() => setMode("smart")}
                 title={!stats ? "รอโหลดสถิติ GLO..." : ""}
@@ -155,7 +149,7 @@ export default function Home() {
             )}
           </div>
 
-          {(mode === "birthday" || mode === "smart") && (
+          {mode === "smart" && (
             <div className="form-group animate-fade-in">
               <label className="text-label-bold">วันเกิด (ค.ศ.) <span style={{fontWeight:400,opacity:.6}}>(ไม่บังคับ)</span></label>
               <input
