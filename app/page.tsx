@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { generateLotto, LottoResult, LottoMode } from "@/lib/lotto-engine";
+import { generateLotto, LottoResult, LottoMode, Gender } from "@/lib/lotto-engine";
 import { getRichCountdownText } from "@/lib/date-utils";
 import { getInsight } from "@/lib/stats-engine";
 import type { GloLotteryResult, LottoStats } from "@/lib/glo-types";
@@ -31,6 +31,8 @@ export default function Home() {
   const [statsError, setStatsError] = useState<string | null>(null);
   const [statsPeriods, setStatsPeriods] = useState(12);
   const [countdownText, setCountdownText] = useState("เดือนนี้รวย");
+
+  const [gender, setGender] = useState<Gender | null>(null);
 
   const [debugResults, setDebugResults] = useState<DebugResult[] | null>(null);
   const [debugLoading, setDebugLoading] = useState(false);
@@ -74,6 +76,7 @@ export default function Home() {
     const newResults = generateLotto(mode, birthday, count, {
       stats: stats ?? undefined,
       history,
+      gender: gender ?? undefined,
     });
     setCurrentResults(newResults);
     const updatedHistory = [...newResults, ...history].slice(0, 20);
@@ -158,6 +161,35 @@ export default function Home() {
                 value={birthday}
                 onChange={e => setBirthday(e.target.value)}
               />
+            </div>
+          )}
+
+          {mode === "smart" && (
+            <div className="form-group animate-fade-in">
+              <label className="text-label-bold">เพศ <span style={{fontWeight:400,opacity:.6}}>(ไม่บังคับ)</span></label>
+              <div className="gender-selector">
+                <button
+                  className={`gender-btn ${gender === "male" ? "active male" : ""}`}
+                  onClick={() => setGender(g => g === "male" ? null : "male")}
+                >
+                  <span className="material-symbols-outlined">male</span>
+                  ชาย
+                </button>
+                <button
+                  className={`gender-btn ${gender === "female" ? "active female" : ""}`}
+                  onClick={() => setGender(g => g === "female" ? null : "female")}
+                >
+                  <span className="material-symbols-outlined">female</span>
+                  หญิง
+                </button>
+              </div>
+              {gender && (
+                <p className="mode-hint">
+                  {gender === "male"
+                    ? "⚡ Yang: ถ่วงน้ำหนักเลขคี่ + ตำแหน่งหยาง"
+                    : "💧 Yin: ถ่วงน้ำหนักเลขคู่ + ตำแหน่งหยิน"}
+                </p>
+              )}
             </div>
           )}
 

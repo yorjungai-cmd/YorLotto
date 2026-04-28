@@ -369,6 +369,46 @@ main {
   border-radius: var(--radius-default);
 }
 
+/* Gender Selector */
+.gender-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.gender-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  border: 1.5px solid var(--surface-container-highest);
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--on-surface-variant);
+}
+
+.gender-btn:hover {
+  border-color: var(--outline-variant);
+  background: var(--surface-container-low);
+}
+
+.gender-btn.active.male {
+  background: rgba(37, 99, 235, 0.08);
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+.gender-btn.active.female {
+  background: rgba(219, 39, 119, 0.08);
+  border-color: #db2777;
+  color: #db2777;
+}
+
 .input-field {
   width: 100%;
   padding: 12px;

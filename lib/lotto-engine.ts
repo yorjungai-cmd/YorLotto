@@ -1,6 +1,7 @@
 import type { LottoStats } from './glo-types';
 
 export type LottoMode = 'pure' | 'birthday' | 'smart';
+export type Gender = 'male' | 'female';
 
 export interface LottoResult {
   sixDigits: string;
@@ -13,6 +14,8 @@ export interface LottoResult {
 export interface GenerateOptions {
   stats?: LottoStats;
   history?: LottoResult[];
+  birthday?: string;
+  gender?: Gender;
 }
 
 // --- Core weighted random -------------------------------------------------
@@ -39,8 +42,50 @@ function weightedPickStr<T extends string>(pool: [T, number][]): T {
   return pool[pool.length - 1][0];
 }
 
+// --- Gender weighting (เลขศาสตร์ไทย + yin/yang) --------------------------
+//
+// ชาย (Yang): ธาตุไฟ-ไม้ → เลขคี่ 1,3,5,7,9 คือเลขหยาง
+//   ตำแหน่งคี่ (index 0,2,4) ในเลข 6 ตัว = ตำแหน่งหยาง → boost สูงสุด
+// หญิง (Yin): ธาตุน้ำ-โลหะ → เลขคู่ 0,2,4,6,8 คือเลขหยิน
+//   ตำแหน่งคู่ (index 1,3,5) = ตำแหน่งหยิน → boost สูงสุด
+
+function genderDigitMultiplier(digit: number, gender: Gender, positionIndex?: number): number {
+  const isOdd = digit % 2 !== 0;
+
+  // Position modifier: yang positions (0,2,4) amplify male boost; yin positions (1,3,5) amplify female boost
+  let posAmp = 1.0;
+  if (positionIndex !== undefined) {
+    const isYangPos = positionIndex % 2 === 0;
+    if (gender === 'male' && isYangPos) posAmp = 1.4;
+    else if (gender === 'female' && !isYangPos) posAmp = 1.4;
+    else posAmp = 0.85;
+  }
+
+  const base = gender === 'male'
+    ? (isOdd ? 1.5 : 0.7)
+    : (isOdd ? 0.7 : 1.5);
+
+  return base * posAmp;
+}
+
+// Apply gender multiplier to a digit-weight array (len 10), with optional position
+function applyGenderToDigits(weights: number[], gender: Gender, positionIndex?: number): number[] {
+  return weights.map((w, d) => w * genderDigitMultiplier(d, gender, positionIndex));
+}
+
+// Compute gender alignment multiplier for a whole number string (e.g. "47" or "312")
+// Combined with GLO frequency: numbers that are gender-aligned AND historically frequent
+// get the highest final weight
+function genderAlignmentForNumber(numStr: string, gender: Gender): number {
+  return numStr.split('').reduce((acc, ch) => {
+    const d = +ch;
+    const isOdd = d % 2 !== 0;
+    const m = gender === 'male' ? (isOdd ? 1.5 : 0.7) : (isOdd ? 0.7 : 1.5);
+    return acc * m;
+  }, 1);
+}
+
 // --- Digit position weights from GLO 2-digit stats -----------------------
-// Returns two arrays of length 10: weights for tens-place and units-place
 
 function positionWeights(twoDigitStats: LottoStats['twoDigit']): [number[], number[]] {
   const tens = new Array(10).fill(1.0);
@@ -62,13 +107,12 @@ function historyPenalty(history: LottoResult[]): number[] {
   const avg = recent.length / 10;
   return freq.map(f => {
     const ratio = f / avg;
-    // Scale: overused digits (ratio > 1.3) get penalty down to 0.3×
     if (ratio > 1.3) return Math.max(0.3, 1 - (ratio - 1) * 0.5);
     return 1.0;
   });
 }
 
-// --- Birthday bonus: birthday digits get boosted weight ------------------
+// --- Birthday bonus -------------------------------------------------------
 
 function applyBirthdayBonus(weights: number[], birthdayDigits: string[], boost = 1.6): number[] {
   const result = [...weights];
@@ -79,28 +123,60 @@ function applyBirthdayBonus(weights: number[], birthdayDigits: string[], boost =
   return result;
 }
 
-// --- Build whole-number pools from GLO stats -----------------------------
+// --- Build whole-number pools from GLO stats (with all layers) -----------
 
 function buildPool(
   stats: { digit: string; count: number }[],
   birthdayDigits: string[],
   recentUsed: string[],
-  useBirthday: boolean
+  useBirthday: boolean,
+  gender?: Gender
 ): [string, number][] {
   return stats.map(({ digit, count }) => {
     let w = 1 + count * 2;
 
-    // Birthday: boost numbers that share digits with birthday
+    // Layer 1: birthday digit matching
     if (useBirthday && birthdayDigits.length > 0) {
       const matches = digit.split('').filter(ch => birthdayDigits.includes(ch)).length;
       if (matches > 0) w *= 1 + matches * 0.4;
     }
 
-    // Anti-repeat: heavily reduce weight of recently generated numbers
+    // Layer 2: gender alignment (cross-multiplied with GLO frequency)
+    // Numbers that are gender-aligned AND historically frequent get the highest weight
+    if (gender) {
+      w *= genderAlignmentForNumber(digit, gender);
+    }
+
+    // Layer 3: anti-repeat
     if (recentUsed.includes(digit)) w *= 0.05;
 
     return [digit, w] as [string, number];
   });
+}
+
+// --- Smart 6-digit: position-aware with all weight layers ----------------
+
+function smartSixDigits(
+  posW: [number[], number[]],
+  penalty: number[],
+  birthdayDigits: string[],
+  useBirthday: boolean,
+  gender?: Gender
+): string {
+  const [tens, units] = posW;
+  // Positions 0,2,4 = tens-pattern (yang positions); 1,3,5 = units-pattern (yin positions)
+  const positionCycle: [number[], number][] = [
+    [tens, 0], [units, 1], [tens, 2], [units, 3], [tens, 4], [units, 5],
+  ];
+
+  let result = '';
+  for (const [base, posIdx] of positionCycle) {
+    let w = base.map((b, i) => b * penalty[i]);
+    if (useBirthday) w = applyBirthdayBonus(w, birthdayDigits);
+    if (gender) w = applyGenderToDigits(w, gender, posIdx);
+    result += weightedPick(w).toString();
+  }
+  return result;
 }
 
 // --- Pure random helpers -------------------------------------------------
@@ -108,45 +184,11 @@ function buildPool(
 function pureTwoDigits() {
   return Math.floor(Math.random() * 100).toString().padStart(2, '0');
 }
-
 function pureThreeDigits() {
   return Math.floor(Math.random() * 1000).toString().padStart(3, '0');
 }
-
 function pureSixDigits() {
   return Math.floor(Math.random() * 1_000_000).toString().padStart(6, '0');
-}
-
-// --- Smart 6-digit from position weights ---------------------------------
-
-function smartSixDigits(
-  posW: [number[], number[]],
-  penalty: number[],
-  birthdayDigits: string[],
-  useBirthday: boolean
-): string {
-  const [tens, units] = posW;
-  const positionCycle = [tens, units, tens, units, tens, units];
-  let result = '';
-  for (const base of positionCycle) {
-    let w = base.map((b, i) => b * penalty[i]);
-    if (useBirthday) w = applyBirthdayBonus(w, birthdayDigits);
-    result += weightedPick(w).toString();
-  }
-  return result;
-}
-
-// --- Birthday mode (original improved) -----------------------------------
-
-function birthdayNumber(length: number, birthdayDigits: string[]): string {
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    const useB = birthdayDigits.length > 0 && Math.random() < 0.45;
-    result += useB
-      ? birthdayDigits[Math.floor(Math.random() * birthdayDigits.length)]
-      : Math.floor(Math.random() * 10).toString();
-  }
-  return result;
 }
 
 // --- Main export ---------------------------------------------------------
@@ -157,22 +199,20 @@ export function generateLotto(
   count = 1,
   options: GenerateOptions = {}
 ): LottoResult[] {
-  const { stats, history = [] } = options;
+  const { stats, history = [], gender } = options;
   const birthdayDigits = birthday.replace(/[^0-9]/g, '').split('').filter(Boolean);
   const useBirthday = birthdayDigits.length > 0;
   const results: LottoResult[] = [];
 
-  // Smart mode needs stats
   const smartMode = mode === 'smart' && !!stats;
 
-  // Precompute for smart mode
   const posW = smartMode ? positionWeights(stats!.twoDigit) : null;
   const penalty = smartMode ? historyPenalty(history) : null;
   const recentTwo = history.slice(0, 10).map(r => r.twoDigits);
   const recentThree = history.slice(0, 10).map(r => r.threeDigits);
 
   const twoPool = smartMode
-    ? buildPool(stats!.twoDigit, birthdayDigits, recentTwo, useBirthday)
+    ? buildPool(stats!.twoDigit, birthdayDigits, recentTwo, useBirthday, gender)
     : null;
 
   const threePool = smartMode
@@ -180,7 +220,8 @@ export function generateLotto(
         stats!.threeDigitSuffix.filter(d => d.count > 0).slice(0, 200),
         birthdayDigits,
         recentThree,
-        useBirthday
+        useBirthday,
+        gender
       )
     : null;
 
@@ -192,11 +233,7 @@ export function generateLotto(
     if (smartMode) {
       twoDigits = weightedPickStr(twoPool!);
       threeDigits = threePool!.length > 0 ? weightedPickStr(threePool!) : pureThreeDigits();
-      sixDigits = smartSixDigits(posW!, penalty!, birthdayDigits, useBirthday);
-    } else if (mode === 'birthday') {
-      twoDigits = birthdayNumber(2, birthdayDigits);
-      threeDigits = birthdayNumber(3, birthdayDigits);
-      sixDigits = birthdayNumber(6, birthdayDigits);
+      sixDigits = smartSixDigits(posW!, penalty!, birthdayDigits, useBirthday, gender);
     } else {
       twoDigits = pureTwoDigits();
       threeDigits = pureThreeDigits();
