@@ -834,6 +834,95 @@ main {
   flex-shrink: 0;
 }
 
+/* Golden Time Card */
+.golden-time-card {
+  background: linear-gradient(145deg, #f9f4f4, var(--surface));
+  border-left-color: var(--secondary-container);
+}
+
+.golden-time-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.golden-time-icon {
+  color: var(--primary);
+  font-size: 22px;
+}
+
+.golden-time-score-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+
+.golden-time-score-label {
+  font-size: 14px;
+  color: var(--on-surface-variant);
+}
+
+.golden-time-score-value {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.golden-time-bar-wrap {
+  height: 8px;
+  background: var(--surface-container-highest);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.golden-time-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-container), var(--primary));
+  border-radius: var(--radius-full);
+  transition: width 0.6s ease;
+}
+
+.golden-time-quote {
+  font-size: 14px;
+  font-style: italic;
+  color: #7a5c5e;
+  border-left: 3px solid var(--secondary-container);
+  padding-left: 12px;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.golden-time-slot {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--surface-container-low);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+}
+
+.golden-time-clock {
+  color: var(--secondary);
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.golden-time-range {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--on-surface);
+}
+
+.golden-time-reason {
+  font-size: 12px;
+  color: var(--on-surface-variant);
+  margin-top: 3px;
+}
+
 /* Result header actions */
 .result-header-actions {
   display: flex;

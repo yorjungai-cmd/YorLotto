@@ -5,6 +5,7 @@ import { generateLotto, LottoResult, LottoMode, Gender } from "@/lib/lotto-engin
 import { getRichCountdownText } from "@/lib/date-utils";
 import { getInsight } from "@/lib/stats-engine";
 import { analyzeNumbers } from "@/lib/number-analysis";
+import { computeGoldenTime, GoldenTimeResult } from "@/lib/golden-time";
 import type { GloLotteryResult, LottoStats } from "@/lib/glo-types";
 
 interface DebugResult {
@@ -36,6 +37,7 @@ export default function Home() {
 
   const [debugResults, setDebugResults] = useState<DebugResult[] | null>(null);
   const [debugLoading, setDebugLoading] = useState(false);
+  const [goldenTime, setGoldenTime] = useState<GoldenTimeResult | null>(null);
   const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
 
   const toggleExpand = (idx: number) =>
@@ -92,6 +94,14 @@ export default function Home() {
         .map(r => ({ r, stars: analyzeNumbers(r.sixDigits, r.threeDigits, r.twoDigits, stats, true).stars }))
         .sort((a, b) => b.stars - a.stars);
       newResults = scored.slice(0, count).map(s => s.r);
+      setGoldenTime(computeGoldenTime(
+        newResults[0].sixDigits,
+        newResults[0].twoDigits,
+        birthday || undefined,
+        gender ?? undefined,
+      ));
+    } else {
+      setGoldenTime(null);
     }
     setCurrentResults(newResults);
     const updatedHistory = [...newResults, ...history].slice(0, 20);
@@ -366,6 +376,36 @@ export default function Home() {
                     })()}
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Golden Time Card */}
+          {goldenTime && (
+            <div className="golden-time-card card animate-fade-in">
+              <div className="golden-time-header">
+                <span className="material-symbols-outlined golden-time-icon">star</span>
+                <h2 className="text-headline-md">ดวงชะตาวันนี้</h2>
+              </div>
+
+              <div className="golden-time-score-row">
+                <span className="golden-time-score-label">ระดับโชคลาภ</span>
+                <span className="golden-time-score-value">{goldenTime.luckScore}%</span>
+              </div>
+              <div className="golden-time-bar-wrap">
+                <div className="golden-time-bar" style={{ width: `${goldenTime.luckScore}%` }} />
+              </div>
+
+              <blockquote className="golden-time-quote">"{goldenTime.insight}"</blockquote>
+
+              <div className="golden-time-slot">
+                <span className="material-symbols-outlined golden-time-clock">schedule</span>
+                <div>
+                  <div className="golden-time-range">
+                    ช่วงเวลาทอง: {goldenTime.startTime} – {goldenTime.endTime}
+                  </div>
+                  <div className="golden-time-reason">{goldenTime.timeReason}</div>
+                </div>
               </div>
             </div>
           )}
