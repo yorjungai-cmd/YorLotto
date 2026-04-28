@@ -350,6 +350,25 @@ main {
   color: var(--primary);
 }
 
+.mode-btn-smart {
+  background: linear-gradient(135deg, rgba(115,92,0,0.06), rgba(124,0,15,0.06));
+}
+
+.mode-btn-smart.active {
+  background: linear-gradient(135deg, var(--secondary), var(--primary));
+  color: var(--on-primary);
+  box-shadow: 0 2px 8px rgba(124,0,15,0.25);
+}
+
+.mode-hint {
+  font-size: 12px;
+  color: var(--on-surface-variant);
+  margin-top: 6px;
+  padding: 4px 8px;
+  background: var(--surface-container-low);
+  border-radius: var(--radius-default);
+}
+
 .input-field {
   width: 100%;
   padding: 12px;

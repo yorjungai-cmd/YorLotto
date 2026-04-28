@@ -71,7 +71,10 @@ export default function Home() {
   }, [statsPeriods]);
 
   const handleRandomize = () => {
-    const newResults = generateLotto(mode, birthday, count);
+    const newResults = generateLotto(mode, birthday, count, {
+      stats: stats ?? undefined,
+      history,
+    });
     setCurrentResults(newResults);
     const updatedHistory = [...newResults, ...history].slice(0, 20);
     setHistory(updatedHistory);
@@ -136,12 +139,25 @@ export default function Home() {
               >
                 ผสมวันเกิด
               </button>
+              <button
+                className={`mode-btn mode-btn-smart ${mode === "smart" ? "active" : ""}`}
+                onClick={() => setMode("smart")}
+                title={!stats ? "รอโหลดสถิติ GLO..." : ""}
+              >
+                ✦ ชาญฉลาด
+              </button>
             </div>
+            {mode === "smart" && !stats && !statsLoading && (
+              <p className="mode-hint">⚠ ยังโหลดสถิติไม่ได้ จะสุ่มแบบ pure แทน</p>
+            )}
+            {mode === "smart" && stats && (
+              <p className="mode-hint">ใช้สถิติ {stats.twoDigit.length} เลข + ประวัติ {history.length} รายการ</p>
+            )}
           </div>
 
-          {mode === "birthday" && (
+          {(mode === "birthday" || mode === "smart") && (
             <div className="form-group animate-fade-in">
-              <label className="text-label-bold">วันเกิด (ค.ศ.)</label>
+              <label className="text-label-bold">วันเกิด (ค.ศ.) <span style={{fontWeight:400,opacity:.6}}>(ไม่บังคับ)</span></label>
               <input
                 type="date"
                 className="input-field"
