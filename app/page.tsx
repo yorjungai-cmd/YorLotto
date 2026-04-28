@@ -81,11 +81,18 @@ export default function Home() {
   }, []);
 
   const handleRandomize = () => {
-    const newResults = generateLotto(mode, birthday, count, {
-      stats: stats ?? undefined,
-      history,
-      gender: gender ?? undefined,
-    });
+    const opts = { stats: stats ?? undefined, history, gender: gender ?? undefined };
+    let newResults = generateLotto(mode, birthday, count, opts);
+
+    if (mode === "smart") {
+      // Generate a pool and pick highest-scoring candidates
+      const poolSize = Math.max(30, count * 6);
+      const pool = generateLotto(mode, birthday, poolSize, opts);
+      const scored = pool
+        .map(r => ({ r, stars: analyzeNumbers(r.sixDigits, r.threeDigits, r.twoDigits, stats, true).stars }))
+        .sort((a, b) => b.stars - a.stars);
+      newResults = scored.slice(0, count).map(s => s.r);
+    }
     setCurrentResults(newResults);
     const updatedHistory = [...newResults, ...history].slice(0, 20);
     setHistory(updatedHistory);
