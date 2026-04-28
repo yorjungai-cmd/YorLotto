@@ -674,26 +674,14 @@ main {
   gap: 12px;
 }
 
-.period-selector {
-  display: flex;
-  gap: 8px;
-}
-
-.period-btn {
-  padding: 6px 16px;
-  border: 1px solid var(--outline-variant);
-  border-radius: var(--radius-full);
-  background: transparent;
-  font-size: 13px;
+.stats-source-tag {
+  font-size: 12px;
   font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.period-btn.active {
-  background: var(--primary);
-  color: var(--on-primary);
-  border-color: var(--primary);
+  color: var(--on-surface-variant);
+  background: var(--surface-container-low);
+  border: 1px solid var(--outline-variant);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
 }
 
 .stats-grid {

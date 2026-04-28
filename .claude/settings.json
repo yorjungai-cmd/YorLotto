@@ -3,7 +3,10 @@
     "allow": [
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); r=d['response']['result']; print\\(list\\(r.keys\\(\\)\\)\\)\")",
       "Bash(npm run *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(curl -s -X POST https://www.glo.or.th/api/mission/getMissionStatsRewardPrevious -H 'Content-Type: application/json' -d '{}')",
+      "Bash(python3 -c ' *)",
+      "Bash(curl -s -X POST https://www.glo.or.th/api/mission/getMissionStatsRewardPrevious -H 'Content-Type: application/json' -d '{\"date\":\"2026-01-01\"}')"
     ]
   }
 }

@@ -29,7 +29,6 @@ export default function Home() {
   const [stats, setStats] = useState<LottoStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState<string | null>(null);
-  const [statsPeriods, setStatsPeriods] = useState(12);
   const [countdownText, setCountdownText] = useState("เดือนนี้รวย");
 
   const [gender, setGender] = useState<Gender | null>(null);
@@ -62,7 +61,7 @@ export default function Home() {
   useEffect(() => {
     setStatsLoading(true);
     setStatsError(null);
-    fetch(`/api/glo/stats?periods=${statsPeriods}`)
+    fetch("/api/glo/stats")
       .then(r => r.json())
       .then(data => {
         if (data.error) throw new Error(data.error);
@@ -70,7 +69,7 @@ export default function Home() {
       })
       .catch(e => setStatsError(e.message))
       .finally(() => setStatsLoading(false));
-  }, [statsPeriods]);
+  }, []);
 
   const handleRandomize = () => {
     const newResults = generateLotto(mode, birthday, count, {
@@ -378,20 +377,14 @@ export default function Home() {
         <div className="stats-section full-width">
           <div className="stats-header">
             <h2 className="text-headline-md">สถิติเลขร้อน / เลขเย็น</h2>
-            <div className="period-selector">
-              {[6, 12, 24].map(p => (
-                <button
-                  key={p}
-                  className={`period-btn ${statsPeriods === p ? "active" : ""}`}
-                  onClick={() => setStatsPeriods(p)}
-                >
-                  {p} งวด
-                </button>
-              ))}
-            </div>
+            {stats && (
+              <span className="stats-source-tag">
+                สถิติสะสม GLO · {stats.periodsAnalyzed} งวด
+              </span>
+            )}
           </div>
 
-          {statsLoading && <div className="loading-row">กำลังโหลดสถิติ {statsPeriods} งวด...</div>}
+          {statsLoading && <div className="loading-row">กำลังโหลดสถิติจาก GLO...</div>}
           {statsError && <div className="error-row">ไม่สามารถโหลดสถิติได้: {statsError}</div>}
 
           {!statsLoading && !statsError && stats && (
@@ -400,7 +393,7 @@ export default function Home() {
               <div className="stat-card card">
                 <h3 className="text-headline-md">2 ตัวท้าย</h3>
                 <p className="stat-meta">
-                  วิเคราะห์จาก {stats.periodsAnalyzed} งวด
+                  สถิติสะสม {stats.periodsAnalyzed} งวด
                   {stats.dateRange.from && ` (${stats.dateRange.from} – ${stats.dateRange.to})`}
                 </p>
                 <div className="stat-columns">
