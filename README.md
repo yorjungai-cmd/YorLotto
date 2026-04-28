@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Yor Lotto
 
-## Getting Started
+เว็บแอปสุ่มเลขนำโชคสำหรับสลากกินแบ่งรัฐบาลไทย พร้อมสถิติย้อนหลังจาก GLO และระบบสุ่มแบบถ่วงน้ำหนักจากข้อมูลจริง
 
-First, run the development server:
+## ฟีเจอร์
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **สุ่มเลข 3 รูปแบบ** — 6 หลัก, 3 ตัวท้าย, 2 ตัวท้าย ในครั้งเดียว
+- **3 โหมดสุ่ม**
+  - `สุ่มล้วน` — โอกาสเท่ากันทุกเลข
+  - `ผสมวันเกิด` — ถ่วงน้ำหนักด้วย digit จากวันเกิด ค.ศ.
+  - `✦ ชาญฉลาด` — ใช้สถิติ GLO จริง + penalty จากประวัติที่เคยสุ่ม
+- **ผลรางวัลงวดล่าสุด** — ดึงข้อมูลจาก GLO โดยตรง
+- **สถิติเลขร้อน / เลขเย็น** — วิเคราะห์ 2 ตัวและ 3 ตัวจาก GLO
+- **Insight หลังสุ่ม** — บอกว่าเลขที่ได้ร้อนหรือเย็นแค่ไหน
+- **ประวัติการสุ่ม** — เก็บ 20 รายการล่าสุดใน localStorage
+- **ทดสอบ Connection GLO** — ตรวจสอบสถานะ API แต่ละ endpoint
+
+## Tech Stack
+
+| ส่วน | เทคโนโลยี |
+|---|---|
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript |
+| Styling | CSS (globals.css) |
+| State | React useState / useEffect |
+| Storage | Browser localStorage |
+| Data | GLO Public API |
+| Deploy | Vercel |
+
+## โครงสร้างโปรเจกต์
+
+```
+app/
+  page.tsx              หน้าหลัก (UI + state)
+  layout.tsx            Layout และ fonts
+  globals.css           Styles ทั้งหมด
+  api/
+    glo/
+      latest/route.ts   Proxy ผลรางวัลล่าสุดจาก GLO
+      stats/route.ts    สถิติ hot/cold จาก GLO
+      debug/route.ts    ทดสอบ connection ทุก endpoint
+
+lib/
+  lotto-engine.ts       Algorithm สุ่มเลข (pure / birthday / smart)
+  stats-engine.ts       คำนวณ hot/cold และ insight
+  glo-types.ts          TypeScript types สำหรับ GLO API
+  date-utils.ts         countdown ถึงงวดถัดไป
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Smart Mode Algorithm
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+โหมด `✦ ชาญฉลาด` ใช้หลายชั้นในการถ่วงน้ำหนัก:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **GLO Stat Weight** — pool 2-ตัว/3-ตัวถ่วงน้ำหนักตามความถี่จริง (`weight = 1 + count × 2`)
+2. **Position Analysis** — 6-ตัวใช้ digit frequency แยกตามตำแหน่ง (หลักสิบ vs หลักหน่วย)
+3. **History Penalty** — digit ที่ถูกสุ่มบ่อยใน 15 รายการล่าสุด ลดน้ำหนักเหลือ 30%
+4. **Anti-repeat** — 2-ตัว/3-ตัวที่เพิ่งออก ลดน้ำหนักเหลือ 5%
+5. **Birthday Bonus** — digit ตรงวันเกิดได้ multiplier 1.6×
 
-## Learn More
+## GLO API Endpoints ที่ใช้
 
-To learn more about Next.js, take a look at the following resources:
+| Endpoint | ใช้ทำอะไร |
+|---|---|
+| `POST /lottery/getLatestLottery` | ผลรางวัลงวดล่าสุด |
+| `POST /lottery/getPeriodList` | รายการงวดย้อนหลัง |
+| `POST /mission/getMissionStatsRewardPrevious` | สถิติความถี่ 2/3 ตัว |
+| `POST /checking/getLotteryResult` | ผลรางวัลตามวันที่ (debug) |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+> ข้อมูลทั้งหมดผ่าน Next.js API Routes เพื่อหลีกเลี่ยง CORS
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## เริ่มต้นใช้งาน
 
-## Deploy on Vercel
+```bash
+npm install
+npm run dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+เปิด [http://localhost:3000](http://localhost:3000)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## ตรวจ Build ก่อน Deploy
+
+```bash
+npm run build
+```
+
+## Deploy บน Vercel
+
+1. Push ขึ้น GitHub
+2. เชื่อม repo กับ [vercel.com](https://vercel.com)
+3. กด Deploy — ไม่ต้องตั้งค่า environment variable ใดๆ
+
+## Data Privacy
+
+- วันเกิดไม่ถูกส่งออกไปยัง server — ใช้เฉพาะ client-side
+- ประวัติการสุ่มเก็บใน `localStorage` ของ browser เท่านั้น
+- ไม่มี database, ไม่มี tracking, ไม่มี login
+
+## หมายเหตุ
+
+เว็บนี้ทำขึ้นเพื่อความบันเทิงเท่านั้น ไม่สามารถทำนายผลสลากได้จริง การสุ่มทุกรูปแบบใช้ `Math.random()` และสถิติประกอบการตัดสินใจ ไม่ใช่การพยากรณ์
+
+## Roadmap
+
+- [x] Phase 1 — สุ่มเลข 3 รูปแบบ, ประวัติ localStorage
+- [x] Phase 2 — GLO API, สถิติ hot/cold, insight, smart mode
+- [ ] Phase 3 — Firebase cache, ระบบ login, ประวัติข้ามเครื่อง
