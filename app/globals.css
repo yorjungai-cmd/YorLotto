@@ -776,6 +776,106 @@ main {
   flex-shrink: 0;
 }
 
+/* Result header actions */
+.result-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.expand-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--outline-variant);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--on-surface-variant);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.expand-btn .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.expand-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.expand-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--on-primary);
+}
+
+/* Analysis Panel */
+.analysis-panel {
+  margin-top: 12px;
+  border-top: 1px solid var(--surface-container-highest);
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.analysis-headline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.analysis-stars {
+  color: var(--gold, #d4a017);
+  font-size: 14px;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+
+.analysis-headline-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--on-surface);
+}
+
+.analysis-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.analysis-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--on-surface-variant);
+  margin-bottom: 2px;
+}
+
+.analysis-chip {
+  font-size: 12px;
+  color: var(--on-surface);
+  background: var(--surface-container);
+  border-radius: var(--radius-default);
+  padding: 4px 8px;
+  line-height: 1.4;
+}
+
+.analysis-chip.pattern {
+  background: rgba(var(--primary-rgb, 168, 0, 24), 0.08);
+  color: var(--primary);
+}
+
+.analysis-chip.stat {
+  background: rgba(22, 163, 74, 0.08);
+  color: #15803d;
+}
+
 /* Debug Section */
 .debug-section {
   margin-top: 16px;

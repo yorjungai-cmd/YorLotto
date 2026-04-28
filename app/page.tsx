@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { generateLotto, LottoResult, LottoMode, Gender } from "@/lib/lotto-engine";
 import { getRichCountdownText } from "@/lib/date-utils";
 import { getInsight } from "@/lib/stats-engine";
+import { analyzeNumbers } from "@/lib/number-analysis";
 import type { GloLotteryResult, LottoStats } from "@/lib/glo-types";
 
 interface DebugResult {
@@ -35,6 +36,14 @@ export default function Home() {
 
   const [debugResults, setDebugResults] = useState<DebugResult[] | null>(null);
   const [debugLoading, setDebugLoading] = useState(false);
+  const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
+
+  const toggleExpand = (idx: number) =>
+    setExpandedCards(prev => {
+      const s = new Set(prev);
+      s.has(idx) ? s.delete(idx) : s.add(idx);
+      return s;
+    });
 
   useEffect(() => {
     setCountdownText(getRichCountdownText());
@@ -315,9 +324,21 @@ export default function Home() {
                   >
                     <div className="result-header">
                       <span className="text-label-bold text-primary">ชุดที่ {idx + 1}</span>
-                      <button className="copy-btn" onClick={() => copyToClipboard(res)}>
-                        <span className="material-symbols-outlined">content_copy</span>
-                      </button>
+                      <div className="result-header-actions">
+                        <button
+                          className={`expand-btn ${expandedCards.has(idx) ? "active" : ""}`}
+                          onClick={() => toggleExpand(idx)}
+                          title="ดูคำอธิบายเลขมงคล"
+                        >
+                          <span className="material-symbols-outlined">
+                            {expandedCards.has(idx) ? "expand_less" : "auto_awesome"}
+                          </span>
+                          เลขมงคล
+                        </button>
+                        <button className="copy-btn" onClick={() => copyToClipboard(res)}>
+                          <span className="material-symbols-outlined">content_copy</span>
+                        </button>
+                      </div>
                     </div>
 
                     <div className="result-main">
@@ -344,6 +365,49 @@ export default function Home() {
                         <span>{getInsight(res.twoDigits, res.threeDigits, stats)}</span>
                       </div>
                     )}
+
+                    {expandedCards.has(idx) && (() => {
+                      const a = analyzeNumbers(res.sixDigits, res.threeDigits, res.twoDigits, stats);
+                      return (
+                        <div className="analysis-panel animate-fade-in">
+                          <div className="analysis-headline">
+                            <span className="analysis-stars">{"★".repeat(a.stars)}{"☆".repeat(5 - a.stars)}</span>
+                            <span className="analysis-headline-text">{a.headline}</span>
+                          </div>
+
+                          <div className="analysis-section">
+                            <div className="analysis-section-title">6 หลัก · {a.six.number}</div>
+                            <div className="analysis-chip">{a.six.composition}</div>
+                            <div className="analysis-chip">ผลรวม {a.six.digitSum} → <strong>{a.six.reducedSum}</strong> · {a.six.sumMeaning}</div>
+                            {a.six.patterns.map((p, i) => (
+                              <div key={i} className="analysis-chip pattern">{p}</div>
+                            ))}
+                          </div>
+
+                          <div className="analysis-section">
+                            <div className="analysis-section-title">3 ตัวท้าย · {a.three.number}</div>
+                            <div className="analysis-chip">ผลรวม {a.three.digitSum} → <strong>{a.three.reducedSum}</strong> · {a.three.sumMeaning}</div>
+                            {a.three.patterns.map((p, i) => (
+                              <div key={i} className="analysis-chip pattern">{p}</div>
+                            ))}
+                            {a.three.statNote && (
+                              <div className="analysis-chip stat">{a.three.statNote}</div>
+                            )}
+                          </div>
+
+                          <div className="analysis-section">
+                            <div className="analysis-section-title">2 ตัวท้าย · {a.two.number}</div>
+                            <div className="analysis-chip">ผลรวม {a.two.digitSum} → <strong>{a.two.reducedSum}</strong> · {a.two.sumMeaning}</div>
+                            {a.two.patterns.map((p, i) => (
+                              <div key={i} className="analysis-chip pattern">{p}</div>
+                            ))}
+                            {a.two.statNote && (
+                              <div className="analysis-chip stat">{a.two.statNote}</div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 ))}
               </div>
