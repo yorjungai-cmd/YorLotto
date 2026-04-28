@@ -367,7 +367,7 @@ export default function Home() {
                     )}
 
                     {expandedCards.has(idx) && (() => {
-                      const a = analyzeNumbers(res.sixDigits, res.threeDigits, res.twoDigits, stats);
+                      const a = analyzeNumbers(res.sixDigits, res.threeDigits, res.twoDigits, stats, mode === "smart");
                       return (
                         <div className="analysis-panel animate-fade-in">
                           <div className="analysis-headline">

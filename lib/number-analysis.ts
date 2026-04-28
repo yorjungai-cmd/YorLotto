@@ -132,13 +132,13 @@ function findThreeDigitStat(n: string, stats: LottoStats): string {
 
 // --- Headline generator --------------------------------------------------
 
-function buildHeadline(twoRank: number, twoTotal: number, stars: number): string {
+function buildHeadline(twoRank: number, twoTotal: number, stars: number, isQuantum: boolean): string {
   if (stars >= 5) return 'เลขชุดนี้มีพลังมงคลสูงมาก ✨';
   if (twoRank <= 5) return `เลข 2 ตัวท้ายเป็นอันดับ ${twoRank} จากสถิติ GLO`;
   if (twoRank > twoTotal - 10) return 'เลข 2 ตัวท้ายเป็นเลขเย็น — หายากในสถิติ';
   if (stars >= 4) return 'เลขชุดนี้มีรูปแบบมงคลน่าสนใจ';
   if (stars === 3) return 'เลขชุดนี้มีความสมดุลพอดี';
-  return 'เลขชุดนี้สุ่มโดยระบบ Quantum';
+  return isQuantum ? 'เลขชุดนี้สุ่มโดยระบบ Quantum' : 'เลขชุดนี้สุ่มโดยระบบพื้นฐาน';
 }
 
 // --- Main export ---------------------------------------------------------
@@ -147,7 +147,8 @@ export function analyzeNumbers(
   sixDigits: string,
   threeDigits: string,
   twoDigits: string,
-  stats?: LottoStats | null
+  stats?: LottoStats | null,
+  isQuantum = false
 ): NumberAnalysis {
   const sixPatterns = detectPatterns(sixDigits);
   const threePatterns = detectPatterns(threeDigits);
@@ -219,6 +220,6 @@ export function analyzeNumbers(
       statNote: twoStatNote,
     },
     stars,
-    headline: buildHeadline(twoStat.rank, twoStat.total, stars),
+    headline: buildHeadline(twoStat.rank, twoStat.total, stars, isQuantum),
   };
 }
