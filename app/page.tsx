@@ -255,62 +255,6 @@ export default function Home() {
 
         {/* Right Column */}
         <div className="right-column">
-          {/* Latest GLO Result */}
-          <div className="glo-latest card">
-            <div className="glo-latest-header">
-              <span className="material-symbols-outlined text-gold-icon">emoji_events</span>
-              <h2 className="text-headline-md">ผลรางวัลงวดล่าสุด</h2>
-              {latestLotto?.date && (
-                <span className="glo-date">{latestLotto.date}</span>
-              )}
-            </div>
-
-            {latestLoading && <div className="loading-row">กำลังโหลดข้อมูล GLO...</div>}
-            {latestError && <div className="error-row">ไม่สามารถโหลดข้อมูลได้: {latestError}</div>}
-            {!latestLoading && !latestError && latestLotto && (
-              <div className="glo-prizes">
-                {latestLotto.prizes.first?.[0] && (
-                  <div className="glo-prize-row prize-first">
-                    <span className="prize-label">รางวัลที่ 1</span>
-                    <span className="prize-number prize-number-xl">
-                      {latestLotto.prizes.first[0]}
-                    </span>
-                  </div>
-                )}
-                <div className="glo-prize-sub">
-                  {latestLotto.prizes.threeDigitPrefix?.length ? (
-                    <div className="glo-prize-item">
-                      <span className="prize-label">3 ตัวหน้า</span>
-                      <div className="prize-tags">
-                        {latestLotto.prizes.threeDigitPrefix.map(n => (
-                          <span key={n} className="prize-tag">{n}</span>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
-                  {latestLotto.prizes.threeDigitSuffix?.length ? (
-                    <div className="glo-prize-item">
-                      <span className="prize-label">3 ตัวท้าย</span>
-                      <div className="prize-tags">
-                        {latestLotto.prizes.threeDigitSuffix.map(n => (
-                          <span key={n} className="prize-tag">{n}</span>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
-                  {latestLotto.prizes.twoDigit?.[0] && (
-                    <div className="glo-prize-item">
-                      <span className="prize-label">2 ตัวท้าย</span>
-                      <span className="prize-tag prize-tag-gold">
-                        {latestLotto.prizes.twoDigit[0]}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
           {/* Results Section */}
           {currentResults.length > 0 && (
             <div className="results-section">
@@ -413,6 +357,62 @@ export default function Home() {
               </div>
             </div>
           )}
+
+          {/* Latest GLO Result */}
+          <div className="glo-latest card">
+            <div className="glo-latest-header">
+              <span className="material-symbols-outlined text-gold-icon">emoji_events</span>
+              <h2 className="text-headline-md">ผลรางวัลงวดล่าสุด</h2>
+              {latestLotto?.date && (
+                <span className="glo-date">{latestLotto.date}</span>
+              )}
+            </div>
+
+            {latestLoading && <div className="loading-row">กำลังโหลดข้อมูล GLO...</div>}
+            {latestError && <div className="error-row">ไม่สามารถโหลดข้อมูลได้: {latestError}</div>}
+            {!latestLoading && !latestError && latestLotto && (
+              <div className="glo-prizes">
+                {latestLotto.prizes.first?.[0] && (
+                  <div className="glo-prize-row prize-first">
+                    <span className="prize-label">รางวัลที่ 1</span>
+                    <span className="prize-number prize-number-xl">
+                      {latestLotto.prizes.first[0]}
+                    </span>
+                  </div>
+                )}
+                <div className="glo-prize-sub">
+                  {latestLotto.prizes.threeDigitPrefix?.length ? (
+                    <div className="glo-prize-item">
+                      <span className="prize-label">3 ตัวหน้า</span>
+                      <div className="prize-tags">
+                        {latestLotto.prizes.threeDigitPrefix.map(n => (
+                          <span key={n} className="prize-tag">{n}</span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                  {latestLotto.prizes.threeDigitSuffix?.length ? (
+                    <div className="glo-prize-item">
+                      <span className="prize-label">3 ตัวท้าย</span>
+                      <div className="prize-tags">
+                        {latestLotto.prizes.threeDigitSuffix.map(n => (
+                          <span key={n} className="prize-tag">{n}</span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                  {latestLotto.prizes.twoDigit?.[0] && (
+                    <div className="glo-prize-item">
+                      <span className="prize-label">2 ตัวท้าย</span>
+                      <span className="prize-tag prize-tag-gold">
+                        {latestLotto.prizes.twoDigit[0]}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* History Section */}
           {history.length > 0 && (
