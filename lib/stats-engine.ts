@@ -9,11 +9,11 @@ export function computeStats(results: GloLotteryResult[]): LottoStats {
   }
 
   for (const result of results) {
-    for (const n of result.prizes.twoDigit?.number ?? []) {
+    for (const n of result.prizes.twoDigit ?? []) {
       const key = n.padStart(2, '0');
       twoDigitMap.set(key, (twoDigitMap.get(key) ?? 0) + 1);
     }
-    for (const n of result.prizes.threeDigitSuffix?.number ?? []) {
+    for (const n of result.prizes.threeDigitSuffix ?? []) {
       const key = n.padStart(3, '0');
       threeDigitSuffixMap.set(key, (threeDigitSuffixMap.get(key) ?? 0) + 1);
     }
@@ -29,6 +29,7 @@ export function computeStats(results: GloLotteryResult[]): LottoStats {
   return {
     twoDigit: sortDesc(twoDigitMap),
     threeDigitSuffix: sortDesc(threeDigitSuffixMap),
+    threeDigitPrefix: [],
     periodsAnalyzed: results.length,
     dateRange: {
       from: dates[dates.length - 1] ?? '',

@@ -6,6 +6,15 @@ import { getRichCountdownText } from "@/lib/date-utils";
 import { getInsight } from "@/lib/stats-engine";
 import type { GloLotteryResult, LottoStats } from "@/lib/glo-types";
 
+interface DebugResult {
+  name: string;
+  ok: boolean;
+  status?: number;
+  error?: string;
+  preview?: unknown;
+  latencyMs: number;
+}
+
 export default function Home() {
   const [mode, setMode] = useState<LottoMode>("pure");
   const [birthday, setBirthday] = useState("");
@@ -23,6 +32,9 @@ export default function Home() {
   const [statsPeriods, setStatsPeriods] = useState(12);
   const [countdownText, setCountdownText] = useState("เดือนนี้รวย");
 
+  const [debugResults, setDebugResults] = useState<DebugResult[] | null>(null);
+  const [debugLoading, setDebugLoading] = useState(false);
+
   useEffect(() => {
     setCountdownText(getRichCountdownText());
   }, []);
@@ -39,9 +51,7 @@ export default function Home() {
       .then(r => r.json())
       .then(data => {
         if (data.error) throw new Error(data.error);
-        const r = data?.response;
-        if (r) setLatestLotto({ date: r.date ?? "", prizes: r.prizes ?? r });
-        else throw new Error("ไม่พบข้อมูล");
+        setLatestLotto(data);
       })
       .catch(e => setLatestError(e.message))
       .finally(() => setLatestLoading(false));
@@ -66,6 +76,16 @@ export default function Home() {
     const updatedHistory = [...newResults, ...history].slice(0, 20);
     setHistory(updatedHistory);
     localStorage.setItem("yor_lotto_history", JSON.stringify(updatedHistory));
+  };
+
+  const handleDebug = () => {
+    setDebugLoading(true);
+    setDebugResults(null);
+    fetch("/api/glo/debug")
+      .then(r => r.json())
+      .then(data => setDebugResults(data.results ?? []))
+      .catch(e => setDebugResults([{ name: "fetch error", ok: false, error: String(e), latencyMs: 0 }]))
+      .finally(() => setDebugLoading(false));
   };
 
   const copyToClipboard = (result: LottoResult) => {
@@ -147,6 +167,40 @@ export default function Home() {
           <button className="btn-primary w-full" onClick={handleRandomize}>
             สุ่มเลขนำโชค
           </button>
+
+          <div className="debug-section">
+            <button
+              className="btn-debug"
+              onClick={handleDebug}
+              disabled={debugLoading}
+            >
+              <span className="material-symbols-outlined icon-inline">wifi_tethering</span>
+              {debugLoading ? "กำลังทดสอบ..." : "ทดสอบ Connection GLO"}
+            </button>
+
+            {debugResults && (
+              <div className="debug-results animate-fade-in">
+                {debugResults.map((r, i) => (
+                  <div key={i} className={`debug-row ${r.ok ? "ok" : "fail"}`}>
+                    <span className="material-symbols-outlined debug-icon">
+                      {r.ok ? "check_circle" : "error"}
+                    </span>
+                    <div className="debug-info">
+                      <span className="debug-name">{r.name}</span>
+                      <span className="debug-detail">
+                        {r.ok
+                          ? `${r.status} · ${r.latencyMs}ms`
+                          : r.error ?? `HTTP ${r.status}`}
+                      </span>
+                      {r.ok && r.preview != null && (
+                        <span className="debug-preview">{String(r.preview)}</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right Column */}
@@ -165,40 +219,40 @@ export default function Home() {
             {latestError && <div className="error-row">ไม่สามารถโหลดข้อมูลได้: {latestError}</div>}
             {!latestLoading && !latestError && latestLotto && (
               <div className="glo-prizes">
-                {latestLotto.prizes.first?.number?.[0] && (
+                {latestLotto.prizes.first?.[0] && (
                   <div className="glo-prize-row prize-first">
                     <span className="prize-label">รางวัลที่ 1</span>
                     <span className="prize-number prize-number-xl">
-                      {latestLotto.prizes.first.number[0]}
+                      {latestLotto.prizes.first[0]}
                     </span>
                   </div>
                 )}
                 <div className="glo-prize-sub">
-                  {latestLotto.prizes.threeDigitPrefix?.number?.length ? (
+                  {latestLotto.prizes.threeDigitPrefix?.length ? (
                     <div className="glo-prize-item">
                       <span className="prize-label">3 ตัวหน้า</span>
                       <div className="prize-tags">
-                        {latestLotto.prizes.threeDigitPrefix.number.map(n => (
+                        {latestLotto.prizes.threeDigitPrefix.map(n => (
                           <span key={n} className="prize-tag">{n}</span>
                         ))}
                       </div>
                     </div>
                   ) : null}
-                  {latestLotto.prizes.threeDigitSuffix?.number?.length ? (
+                  {latestLotto.prizes.threeDigitSuffix?.length ? (
                     <div className="glo-prize-item">
                       <span className="prize-label">3 ตัวท้าย</span>
                       <div className="prize-tags">
-                        {latestLotto.prizes.threeDigitSuffix.number.map(n => (
+                        {latestLotto.prizes.threeDigitSuffix.map(n => (
                           <span key={n} className="prize-tag">{n}</span>
                         ))}
                       </div>
                     </div>
                   ) : null}
-                  {latestLotto.prizes.twoDigit?.number?.[0] && (
+                  {latestLotto.prizes.twoDigit?.[0] && (
                     <div className="glo-prize-item">
                       <span className="prize-label">2 ตัวท้าย</span>
                       <span className="prize-tag prize-tag-gold">
-                        {latestLotto.prizes.twoDigit.number[0]}
+                        {latestLotto.prizes.twoDigit[0]}
                       </span>
                     </div>
                   )}
