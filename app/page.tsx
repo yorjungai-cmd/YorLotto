@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { generateLotto, LottoResult, LottoMode } from "@/lib/lotto-engine";
+import { getRichCountdownText } from "@/lib/date-utils";
 import { getInsight } from "@/lib/stats-engine";
 import type { GloLotteryResult, LottoStats } from "@/lib/glo-types";
 
@@ -20,6 +21,11 @@ export default function Home() {
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState<string | null>(null);
   const [statsPeriods, setStatsPeriods] = useState(12);
+  const [countdownText, setCountdownText] = useState("เดือนนี้รวย");
+
+  useEffect(() => {
+    setCountdownText(getRichCountdownText());
+  }, []);
 
   useEffect(() => {
     const saved = localStorage.getItem("yor_lotto_history");
@@ -75,7 +81,7 @@ export default function Home() {
         <div className="container hero-content">
           <h1 className="text-display-hero">
             Yor Lotto <br />
-            <span className="text-gold">เดือนนี้รวย</span>
+            <span className="text-gold">{countdownText}</span>
           </h1>
           <p className="text-body-lg hero-desc">
             สัมผัสประสบการณ์แห่งความโชคดี สุ่มเลขนำโชคของคุณได้ง่ายๆ เพียงปลายนิ้วสัมผัส
