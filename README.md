@@ -1,106 +1,173 @@
 # Yor Lotto
 
-เว็บแอปสุ่มเลขนำโชคสำหรับสลากกินแบ่งรัฐบาลไทย พร้อมสถิติย้อนหลังจาก GLO และระบบสุ่มแบบถ่วงน้ำหนักจากข้อมูลจริง
+Yor Lotto คือเว็บแอปสุ่มเลขนำโชคสำหรับสลากกินแบ่งรัฐบาลไทย ที่ออกแบบมาให้ “กดครั้งเดียว ได้เลขครบชุด” พร้อมดูสถิติจริงจาก GLO ในประสบการณ์ที่ใช้งานง่าย เร็ว และไม่ต้องสมัครสมาชิก
 
-## ฟีเจอร์
+ผู้ใช้สามารถสุ่มเลข 6 หลัก, 3 ตัวท้าย, และ 2 ตัวท้ายได้ทันที เลือกได้ทั้งโหมด `Normal` สำหรับการสุ่มล้วน และโหมด `✦ Quantum` ที่นำสถิติย้อนหลัง, ประวัติการสุ่ม, วันเกิด, และเพศมาช่วยถ่วงน้ำหนักเพื่อสร้างเลขที่มีคาแรกเตอร์มากขึ้น
 
-- **สุ่มเลข 3 รูปแบบ** — 6 หลัก, 3 ตัวท้าย, 2 ตัวท้าย ในครั้งเดียว
-- **3 โหมดสุ่ม**
-  - `สุ่มล้วน` — โอกาสเท่ากันทุกเลข
-  - `ผสมวันเกิด` — ถ่วงน้ำหนักด้วย digit จากวันเกิด ค.ศ.
-  - `✦ ชาญฉลาด` — ใช้สถิติ GLO จริง + penalty จากประวัติที่เคยสุ่ม
-- **ผลรางวัลงวดล่าสุด** — ดึงข้อมูลจาก GLO โดยตรง
-- **สถิติเลขร้อน / เลขเย็น** — วิเคราะห์ 2 ตัวและ 3 ตัวจาก GLO
-- **Insight หลังสุ่ม** — บอกว่าเลขที่ได้ร้อนหรือเย็นแค่ไหน
-- **ประวัติการสุ่ม** — เก็บ 20 รายการล่าสุดใน localStorage
-- **ทดสอบ Connection GLO** — ตรวจสอบสถานะ API แต่ละ endpoint
+## Why Yor Lotto
 
-## Tech Stack
+- สุ่มเลขครบ 3 รูปแบบในครั้งเดียว
+- ดูผลงวดล่าสุดและสถิติเลขร้อน / เลขเย็นได้ในหน้าเดียว
+- มี Quantum mode สำหรับคนที่อยากได้เลขแบบ “มีเรื่องเล่า” มากกว่าสุ่มล้วน
+- ใช้งานได้เลยบน browser โดยไม่ต้อง login
+- เก็บวันเกิดและประวัติการสุ่มไว้ฝั่ง client เท่านั้น
+
+## Product Highlights
+
+### 1. One-Tap Lucky Pick
+
+กดสุ่มครั้งเดียวแล้วได้ผลลัพธ์ครบทั้ง:
+
+- เลข 6 หลัก
+- เลข 3 ตัวท้าย
+- เลข 2 ตัวท้าย
+
+รองรับการสุ่มทีละ `1`, `5`, หรือ `10` ชุด เพื่อให้เลือกเลขได้เร็วขึ้น
+
+### 2. Two Modes, Two Feelings
+
+| โหมด | เหมาะกับใคร | การทำงาน |
+|---|---|---|
+| `Normal` | คนที่อยากสุ่มแบบตรงไปตรงมา | สุ่มทุกหลักด้วย `Math.random()` |
+| `✦ Quantum` | คนที่อยากได้เลขที่มีบริบทเพิ่มขึ้น | ถ่วงน้ำหนักด้วยสถิติ GLO, ประวัติ, วันเกิด, และเพศ |
+
+หมายเหตุ: ใน engine ยังมี type `birthday` คงไว้เพื่อ backward compatibility แต่ไม่ได้เปิดเป็นโหมดใน UI ปัจจุบัน
+
+### 3. Real GLO Context
+
+Yor Lotto ไม่ได้เป็นแค่ตัวสุ่มเลข แต่ยังช่วยให้ผู้ใช้ตัดสินใจจากบริบทจริง:
+
+- แสดงผลรางวัลงวดล่าสุดจาก GLO
+- แสดงสถิติเลขร้อน / เลขเย็นของ 2 ตัวท้ายและ 3 ตัวท้าย
+- มี insight ใต้ผลลัพธ์แต่ละชุดว่าเลขที่ได้ “ร้อน”, “เย็น”, หรือ “เคยออกมาแล้วกี่ครั้ง”
+
+### 4. Privacy First by Default
+
+- วันเกิดและเพศใช้เฉพาะฝั่ง browser
+- ประวัติการสุ่มเก็บใน `localStorage`
+- ไม่มี database
+- ไม่มีระบบ login
+
+## Quantum Mode at a Glance
+
+สำหรับผู้ใช้ Quantum mode คือการสุ่มที่ “มีน้ำหนักมากกว่าความบังเอิญล้วน” โดยระบบจะเรียงชั้นการคำนวณประมาณนี้:
+
+1. `GLO Stat Weight` ใช้น้ำหนัก `1 + count × 2`
+2. `Birthday Bonus` digit ที่ตรงกับวันเกิดจะได้โบนัสเพิ่ม
+3. `Gender Alignment` ชายเน้นเลขคี่, หญิงเน้นเลขคู่
+4. `Position Amplifier` เลข 6 หลักมีการเพิ่มแรงถ่วงตามตำแหน่ง Yang/Yin
+5. `History Penalty` digit ที่โผล่บ่อยใน 15 รายการล่าสุดจะถูกลดน้ำหนัก
+6. `Anti-repeat` เลข 2 ตัว / 3 ตัวที่เพิ่งสุ่มซ้ำจะถูกลดน้ำหนักอย่างแรง
+
+สรุปแบบสั้น:
+
+- เลข 2 ตัวและ 3 ตัวสุ่มจาก weighted pool ที่อิงสถิติจริง
+- เลข 6 หลักสุ่มแบบแยกตำแหน่ง โดยใช้ pattern จากสถิติ 2 ตัวมาช่วยกระจายน้ำหนัก
+- ถ้าโหลดสถิติ GLO ไม่สำเร็จ ระบบจะ fallback ไปสุ่มแบบ `Normal`
+
+## Experience Flow
+
+```text
+เปิดเว็บ
+  -> โหลดผลงวดล่าสุด + สถิติ GLO
+  -> เลือก Normal หรือ ✦ Quantum
+  -> ใส่วันเกิด / เพศ ถ้าต้องการ
+  -> เลือกจำนวนชุด
+  -> กดสุ่ม
+  -> ได้เลขพร้อม insight และบันทึกประวัติอัตโนมัติ
+```
+
+## Tech Snapshot
 
 | ส่วน | เทคโนโลยี |
 |---|---|
 | Framework | Next.js 16 (App Router) |
 | Language | TypeScript |
-| Styling | CSS (globals.css) |
-| State | React useState / useEffect |
-| Storage | Browser localStorage |
-| Data | GLO Public API |
+| Styling | CSS ใน `globals.css` |
+| State | React `useState` / `useEffect` |
+| Storage | Browser `localStorage` |
+| Data Source | GLO Public API |
 | Deploy | Vercel |
 
-## โครงสร้างโปรเจกต์
+## Architecture
 
+```text
+Browser UI
+  -> /api/glo/latest   -> GLO getLatestLottery
+  -> /api/glo/stats    -> GLO getMissionStatsRewardPrevious
+  -> /api/glo/debug    -> probe หลาย endpoint เพื่อเช็กสถานะ
 ```
+
+ทุกการเรียก GLO วิ่งผ่าน route handlers เพื่อหลีกเลี่ยง CORS และ normalize response ก่อนส่งกลับหน้าเว็บ
+
+## Project Structure
+
+```text
 app/
-  page.tsx              หน้าหลัก (UI + state)
-  layout.tsx            Layout และ fonts
-  globals.css           Styles ทั้งหมด
-  api/
-    glo/
-      latest/route.ts   Proxy ผลรางวัลล่าสุดจาก GLO
-      stats/route.ts    สถิติ hot/cold จาก GLO
-      debug/route.ts    ทดสอบ connection ทุก endpoint
+  page.tsx              หน้า UI หลักและ client state ทั้งหมด
+  layout.tsx            layout, metadata, fonts
+  globals.css           CSS ทั้งโปรเจกต์
+  api/glo/
+    latest/route.ts     proxy ผลรางวัลงวดล่าสุด
+    stats/route.ts      proxy สถิติเลขย้อนหลัง
+    debug/route.ts      probe endpoint ของ GLO พร้อม latency
 
 lib/
-  lotto-engine.ts       Algorithm สุ่มเลข (pure / birthday / smart)
-  stats-engine.ts       คำนวณ hot/cold และ insight
-  glo-types.ts          TypeScript types สำหรับ GLO API
-  date-utils.ts         countdown ถึงงวดถัดไป
+  lotto-engine.ts       logic สุ่มเลขและ weighted algorithm
+  stats-engine.ts       insight สำหรับผลที่สุ่มได้
+  glo-types.ts          types ของข้อมูล GLO ที่ normalize แล้ว
+  date-utils.ts         helper ข้อความ countdown ถึงงวดถัดไป
 ```
 
-## Smart Mode Algorithm
+## GLO Endpoints ที่ใช้อยู่จริง
 
-โหมด `✦ ชาญฉลาด` ใช้หลายชั้นในการถ่วงน้ำหนัก:
-
-1. **GLO Stat Weight** — pool 2-ตัว/3-ตัวถ่วงน้ำหนักตามความถี่จริง (`weight = 1 + count × 2`)
-2. **Position Analysis** — 6-ตัวใช้ digit frequency แยกตามตำแหน่ง (หลักสิบ vs หลักหน่วย)
-3. **History Penalty** — digit ที่ถูกสุ่มบ่อยใน 15 รายการล่าสุด ลดน้ำหนักเหลือ 30%
-4. **Anti-repeat** — 2-ตัว/3-ตัวที่เพิ่งออก ลดน้ำหนักเหลือ 5%
-5. **Birthday Bonus** — digit ตรงวันเกิดได้ multiplier 1.6×
-
-## GLO API Endpoints ที่ใช้
-
-| Endpoint | ใช้ทำอะไร |
+| Endpoint | ใช้ทำอะไรในโปรเจกต์ |
 |---|---|
 | `POST /lottery/getLatestLottery` | ผลรางวัลงวดล่าสุด |
-| `POST /lottery/getPeriodList` | รายการงวดย้อนหลัง |
-| `POST /mission/getMissionStatsRewardPrevious` | สถิติความถี่ 2/3 ตัว |
-| `POST /checking/getLotteryResult` | ผลรางวัลตามวันที่ (debug) |
+| `POST /mission/getMissionStatsRewardPrevious` | สถิติ 2 ตัวท้าย / 3 ตัวหน้า / 3 ตัวท้าย |
+| `POST /lottery/getPeriodList` | ใช้ใน debug route เพื่อ probe endpoint |
+| `POST /checking/getLotteryResult` | ใช้ใน debug route เท่านั้น ไม่ใช้ใน production flow |
 
-> ข้อมูลทั้งหมดผ่าน Next.js API Routes เพื่อหลีกเลี่ยง CORS
+ข้อควรรู้:
 
-## เริ่มต้นใช้งาน
+- โปรเจกต์ normalize ข้อมูลผลรางวัลเป็น `GloLotteryResult`
+- endpoint `getLotteryResult` สำหรับงวดย้อนหลังไม่น่าเชื่อถือและไม่ใช่แหล่งข้อมูลหลักของแอป
+
+## Getting Started
 
 ```bash
 npm install
 npm run dev
 ```
 
-เปิด [http://localhost:3000](http://localhost:3000)
+เปิด `http://localhost:3000`
 
-## ตรวจ Build ก่อน Deploy
+คำสั่งที่ใช้บ่อย:
 
 ```bash
+npm run dev
 npm run build
+npm run lint
 ```
 
-## Deploy บน Vercel
+## Project Status
 
-1. Push ขึ้น GitHub
-2. เชื่อม repo กับ [vercel.com](https://vercel.com)
-3. กด Deploy — ไม่ต้องตั้งค่า environment variable ใดๆ
+- Phase 1: MVP และประวัติการสุ่ม เสร็จแล้ว
+- Phase 2: GLO integration, stats, insight, Quantum mode เสร็จแล้ว
+- Phase 3: cross-device history / auth / analytics ยังเป็นแผนในอนาคต
 
-## Data Privacy
+## Important Notes
 
-- วันเกิดไม่ถูกส่งออกไปยัง server — ใช้เฉพาะ client-side
-- ประวัติการสุ่มเก็บใน `localStorage` ของ browser เท่านั้น
-- ไม่มี database, ไม่มี tracking, ไม่มี login
+- แอปนี้ไม่ได้ทำนายผลหวยจริง เป็นเพียงการสุ่มแบบถ่วงน้ำหนัก
+- การสุ่มยังใช้ `Math.random()` เป็นฐาน
+- ข้อมูลจาก GLO อาจเปลี่ยนโครงสร้างได้ จึงควรเช็ก route debug หรือ route handlers ก่อนแก้ integration
 
-## หมายเหตุ
+## For Contributors
 
-เว็บนี้ทำขึ้นเพื่อความบันเทิงเท่านั้น ไม่สามารถทำนายผลสลากได้จริง การสุ่มทุกรูปแบบใช้ `Math.random()` และสถิติประกอบการตัดสินใจ ไม่ใช่การพยากรณ์
+ถ้าจะเข้ามาแก้ต่อ แนะนำให้อ่านไฟล์ตามลำดับนี้:
 
-## Roadmap
-
-- [x] Phase 1 — สุ่มเลข 3 รูปแบบ, ประวัติ localStorage
-- [x] Phase 2 — GLO API, สถิติ hot/cold, insight, smart mode
-- [ ] Phase 3 — Firebase cache, ระบบ login, ประวัติข้ามเครื่อง
+1. [AGENTS.md](/Users/anupong/Projects/YorLotto/AGENTS.md:1)
+2. [app/page.tsx](/Users/anupong/Projects/YorLotto/app/page.tsx:1)
+3. [lib/lotto-engine.ts](/Users/anupong/Projects/YorLotto/lib/lotto-engine.ts:1)
+4. [app/api/glo/stats/route.ts](/Users/anupong/Projects/YorLotto/app/api/glo/stats/route.ts:1)
+5. [app/api/glo/latest/route.ts](/Users/anupong/Projects/YorLotto/app/api/glo/latest/route.ts:1)
