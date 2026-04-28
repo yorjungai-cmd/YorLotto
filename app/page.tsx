@@ -119,20 +119,25 @@ export default function Home() {
     <div className="home-container animate-fade-in">
       {/* Hero Section */}
       <section className="hero">
-        <div className="container hero-content">
-          <h1 className="text-display-hero">
-            Yor Lotto <br />
-            <span className="text-gold">{countdownText}</span>
-          </h1>
-          <p className="text-body-lg hero-desc">
-            ระบบคำนวณการสุ่มด้วยฟิสิกส์ควอนตัม
-          </p>
-          <div className="hero-actions">
-            <button className="btn-primary" onClick={handleRandomize}>
-              <span className="material-symbols-outlined icon-inline">casino</span>
-              LUCKY PICK
-            </button>
-            <button className="btn-outline">VIEW STATS</button>
+        <div className="container hero-layout">
+          <div className="hero-content">
+            <h1 className="text-display-hero">
+              Yor Lotto <br />
+              <span className="text-gold">{countdownText}</span>
+            </h1>
+            <p className="text-body-lg hero-desc">
+              ระบบคำนวณการสุ่มด้วยฟิสิกส์ควอนตัม
+            </p>
+            <div className="hero-actions">
+              <button className="btn-primary" onClick={handleRandomize}>
+                <span className="material-symbols-outlined icon-inline">casino</span>
+                LUCKY PICK
+              </button>
+              <button className="btn-outline">VIEW STATS</button>
+            </div>
+          </div>
+          <div className="hero-graphic animate-float">
+            <img src="/quantum-hero.png" alt="Quantum Lottery Graphic" />
           </div>
         </div>
       </section>

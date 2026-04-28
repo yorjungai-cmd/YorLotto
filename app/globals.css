@@ -156,6 +156,16 @@ a {
   animation: fadeIn 0.4s ease-out forwards;
 }
 
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
 /* Layout Components */
 .top-app-bar {
   background: var(--surface);
@@ -254,10 +264,40 @@ main {
 .hero {
   background: linear-gradient(135deg, var(--primary-container) 0%, var(--primary) 100%);
   color: var(--on-primary);
-  padding: 80px 0 100px;
+  padding: 100px 0 120px;
   text-align: left;
   position: relative;
   overflow: hidden;
+}
+
+.hero-layout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-xl);
+}
+
+.hero-content {
+  flex: 1.2;
+  z-index: 2;
+}
+
+.hero-graphic {
+  flex: 1;
+  max-width: 550px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  position: relative;
+}
+
+.hero-graphic img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-xl);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(254, 214, 91, 0.1);
+  border: 1px solid rgba(254, 214, 91, 0.1);
 }
 
 .hero::after {
@@ -305,6 +345,24 @@ main {
 @media (min-width: 1024px) {
   .dashboard {
     grid-template-columns: 350px 1fr;
+  }
+}
+
+@media (max-width: 900px) {
+  .hero-layout {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--spacing-lg);
+  }
+  .hero-desc {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .hero-actions {
+    justify-content: center;
+  }
+  .hero-graphic {
+    max-width: 400px;
   }
 }
 
