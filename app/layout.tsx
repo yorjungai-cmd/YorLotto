@@ -4,6 +4,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Yor Lotto - เดือนนี้รวย",
   description: "Experience the thrill of the win. Your lucky numbers are just a tap away.",
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({
