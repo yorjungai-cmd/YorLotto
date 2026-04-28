@@ -104,7 +104,7 @@ export default function Home() {
             <span className="text-gold">{countdownText}</span>
           </h1>
           <p className="text-body-lg hero-desc">
-            สัมผัสประสบการณ์แห่งความโชคดี สุ่มเลขนำโชคของคุณได้ง่ายๆ เพียงปลายนิ้วสัมผัส
+            ระบบคำนวณการสุ่มด้วยฟิสิกส์ควอนตัม
           </p>
           <div className="hero-actions">
             <button className="btn-primary" onClick={handleRandomize}>
