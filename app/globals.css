@@ -362,7 +362,7 @@ main {
     justify-content: center;
   }
   .hero-graphic {
-    max-width: 400px;
+    display: none;
   }
 }
 
