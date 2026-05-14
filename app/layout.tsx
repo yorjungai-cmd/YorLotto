@@ -46,22 +46,22 @@ export default function RootLayout({
         <main>{children}</main>
 
         <nav className="bottom-nav">
-          <div className="nav-item active">
+          <a href="/" className="nav-item active">
             <span className="material-symbols-outlined">home</span>
             <span className="nav-label">Home</span>
-          </div>
-          <div className="nav-item">
+          </a>
+          <a href="#lucky-pick" className="nav-item">
             <span className="material-symbols-outlined">casino</span>
             <span className="nav-label">Lucky Pick</span>
-          </div>
-          <div className="nav-item">
-            <span className="material-symbols-outlined">cake</span>
-            <span className="nav-label">Birthday</span>
-          </div>
-          <div className="nav-item">
+          </a>
+          <a href="#quantum" className="nav-item">
+            <span className="material-symbols-outlined">auto_awesome</span>
+            <span className="nav-label">Quantum</span>
+          </a>
+          <a href="#stats" className="nav-item">
             <span className="material-symbols-outlined">leaderboard</span>
             <span className="nav-label">Stats</span>
-          </div>
+          </a>
         </nav>
       </body>
     </html>

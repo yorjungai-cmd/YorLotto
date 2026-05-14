@@ -82,6 +82,39 @@ export default function Home() {
       .finally(() => setStatsLoading(false));
   }, []);
 
+  const scrollToSection = (id: string, newMode?: LottoMode) => {
+    if (newMode) setMode(newMode);
+    const el = document.getElementById(id);
+    if (el) {
+      const offset = 80; // For sticky header
+      const bodyRect = document.body.getBoundingClientRect().top;
+      const elementRect = el.getBoundingClientRect().top;
+      const elementPosition = elementRect - bodyRect;
+      const offsetPosition = elementPosition - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
+    }
+  };
+
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash;
+      if (hash === "#lucky-pick") {
+        scrollToSection("calculator", "pure");
+      } else if (hash === "#quantum") {
+        scrollToSection("calculator", "smart");
+      } else if (hash === "#stats") {
+        scrollToSection("stats-section");
+      }
+    };
+    window.addEventListener("hashchange", handleHash);
+    handleHash(); // Handle initial load
+    return () => window.removeEventListener("hashchange", handleHash);
+  }, []);
+
   const handleRandomize = () => {
     const opts = { stats: stats ?? undefined, history, gender: gender ?? undefined };
     let newResults = generateLotto(mode, birthday, count, opts);
@@ -139,11 +172,11 @@ export default function Home() {
               ระบบคำนวณการสุ่มด้วยฟิสิกส์ควอนตัม
             </p>
             <div className="hero-actions">
-              <button className="btn-primary" onClick={handleRandomize}>
+              <button className="btn-primary" onClick={() => scrollToSection("calculator", "pure")}>
                 <span className="material-symbols-outlined icon-inline">casino</span>
                 LUCKY PICK
               </button>
-              <button className="btn-outline">VIEW STATS</button>
+              <button className="btn-outline" onClick={() => scrollToSection("stats-section")}>VIEW STATS</button>
             </div>
           </div>
           <div className="hero-graphic animate-float">
@@ -154,7 +187,7 @@ export default function Home() {
 
       <div className="container dashboard">
         {/* Control Panel */}
-        <div className="control-panel card">
+        <div id="calculator" className="control-panel card">
           <h2 className="text-headline-md">ตั้งค่าระบบคำนวณ</h2>
 
           <div className="form-group">
@@ -490,7 +523,7 @@ export default function Home() {
         </div>
 
         {/* Stats Section — full width */}
-        <div className="stats-section full-width">
+        <div id="stats-section" className="stats-section full-width">
           <div className="stats-header">
             <h2 className="text-headline-md">สถิติเลขร้อน / เลขเย็น</h2>
             {stats && (
