@@ -20,7 +20,6 @@ interface DebugResult {
 export default function Home() {
   const [mode, setMode] = useState<LottoMode>("pure");
   const [birthday, setBirthday] = useState("");
-  const [count, setCount] = useState(1);
   const [currentResults, setCurrentResults] = useState<LottoResult[]>([]);
   const [history, setHistory] = useState<LottoResult[]>([]);
 
@@ -117,11 +116,12 @@ export default function Home() {
 
   const handleRandomize = () => {
     const opts = { stats: stats ?? undefined, history, gender: gender ?? undefined };
+    const count = 1;
     let newResults = generateLotto(mode, birthday, count, opts);
 
     if (mode === "smart") {
       // Generate a pool and pick highest-scoring candidates
-      const poolSize = Math.max(30, count * 6);
+      const poolSize = 30;
       const pool = generateLotto(mode, birthday, poolSize, opts);
       const scored = pool
         .map(r => ({ r, stars: analyzeNumbers(r.sixDigits, r.threeDigits, r.twoDigits, stats, true).stars }))
@@ -256,18 +256,6 @@ export default function Home() {
             </div>
           )}
 
-          <div className="form-group">
-            <label className="text-label-bold">จำนวนชุด</label>
-            <select
-              className="input-field"
-              value={count}
-              onChange={e => setCount(Number(e.target.value))}
-            >
-              <option value={1}>1 ชุด</option>
-              <option value={5}>5 ชุด</option>
-              <option value={10}>10 ชุด</option>
-            </select>
-          </div>
 
           <button className="btn-primary w-full" onClick={handleRandomize}>
             สุ่มเลขนำโชค
@@ -322,7 +310,7 @@ export default function Home() {
                     style={{ animationDelay: `${idx * 0.1}s` }}
                   >
                     <div className="result-header">
-                      <span className="text-label-bold text-primary">ชุดที่ {idx + 1}</span>
+                      <span className="text-label-bold text-primary">เลขนำโชคของคุณ</span>
                       <div className="result-header-actions">
                         <button
                           className={`expand-btn ${expandedCards.has(idx) ? "active" : ""}`}
